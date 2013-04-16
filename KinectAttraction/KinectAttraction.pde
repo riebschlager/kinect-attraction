@@ -1,16 +1,17 @@
 import SimpleOpenNI.*;
 
 SimpleOpenNI context;
-ArrayList<Mover> movers = new ArrayList<Mover>();
-ArrayList<Attractor> attractors = new ArrayList<Attractors>();
-ArrayList<int> colors = new ArrayList<int>();
+ArrayList<Mover> moversL = new ArrayList<Mover>();
+ArrayList<Mover> moversR = new ArrayList<Mover>();
+//ArrayList<Attractor> attractors = new ArrayList<Attractor>();
+Attractor attractorL, attractorR;
+ArrayList<Integer> colors = new ArrayList<Integer>();
 PGraphics canvas, people;
 
 void setup() {
   size(displayWidth, displayHeight);
   background(255);
   context = new SimpleOpenNI(this);
-  
   if (context.enableDepth() == false)
   {
     exit();
@@ -19,7 +20,7 @@ void setup() {
 
   context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
   context.setMirror(true);
-  
+
   canvas = createGraphics(width, height);
   canvas.beginDraw();
   canvas.noStroke();
@@ -28,14 +29,24 @@ void setup() {
   people = createGraphics(width, height);
   people.beginDraw();
   people.endDraw();
-  
-  movers[0] = new Mover(1.5, new PVector(random(width), random(height)), 0.00095);
-  movers[1] = new Mover(1.0, new PVector(random(width), random(height)), 0.00075);
-  movers[2] = new Mover(0.5, new PVector(random(width), random(height)), 0.00025);
-  attractor = new Attractor();
-  colors.add(color(70, 100));
-  colors.add(color(255, 117, 0, 100));
-  colors.add(color(12, 107, 161, 100));
+
+  moversL.add(new Mover(1.5, new PVector(random(width), random(height)), 0.00095));
+  moversL.add(new Mover(1.0, new PVector(random(width), random(height)), 0.00075));
+  moversL.add(new Mover(0.5, new PVector(random(width), random(height)), 0.00025));
+
+  moversR.add(new Mover(1.5, new PVector(random(width), random(height)), 0.00095));
+  moversR.add(new Mover(1.0, new PVector(random(width), random(height)), 0.00075));
+  moversR.add(new Mover(0.5, new PVector(random(width), random(height)), 0.00025));
+
+  attractorL = new Attractor();
+  attractorR = new Attractor();
+
+  colors.add(color(0x224C2B2F));
+  colors.add(color(0x22E57152));
+  colors.add(color(0x22E8D367));
+  colors.add(color(0x22FFEFC3));
+  colors.add(color(0x22C0CCAB));
+  colors.add(color(0x22666666));
 }
 
 void draw() {
@@ -54,24 +65,29 @@ void draw() {
   canvas.beginDraw();
   if (frameCount % 100 == 0) {
     if (context.getUsers().length==0) {
-      attractor.updateLocation(new PVector(random(width), random(height)));
+      //attractor.updateLocation(new PVector(random(width), random(height)));
     }
   }
-  for (int j = 0; j < 5; j++) {
-    for (int i = 0; i < movers.length; i++) {
-      movers[i].applyForce(attractor.attract(movers[i]));
-      movers[i].update();
-      canvas.fill(colors[i]);
-
+  for (int j = 0; j < 10; j++) {
+    for (int i = 0; i < moversL.size(); i++) {
+      Mover m = moversL.get(i);
+      m.applyForce(attractorL.attract(m));
+      m.update();
+      canvas.fill(colors.get(i));
       canvas.stroke(0, 10);
       canvas.strokeWeight(10);
-      if (isWhite) {
-        canvas.fill(0x99FFFFFF);
-      }
-      if (movers[i].distance > 10) canvas.ellipse(movers[i].location.x, movers[i].location.y, movers[i].radius, movers[i].radius);
+      canvas.noStroke();
+      canvas.ellipse(m.location.x, m.location.y, m.radius, m.radius);
+    }
+    for (int i = 0; i < moversR.size(); i++) {
+      Mover m = moversR.get(i);
+      m.applyForce(attractorR.attract(m));
+      m.update();
+      canvas.fill(colors.get(i+3));
       canvas.stroke(0, 10);
-      canvas.strokeWeight(1);
-      canvas.line(movers[0].location.x, movers[0].location.y, movers[1].location.x, movers[1].location.y);
+      canvas.strokeWeight(10);
+      canvas.noStroke();
+      canvas.ellipse(m.location.x, m.location.y, m.radius, m.radius);
     }
   }
 
@@ -81,8 +97,8 @@ void draw() {
 }
 
 void nextColor() {
-  currentColor++;
-  currentColor = (currentColor >= colors.length) ? 0 : currentColor;
+  //currentColor++;
+  //currentColor = (currentColor >= colors.length) ? 0 : currentColor;
 }
 
 void drawSkeleton(int userId)
@@ -116,7 +132,8 @@ void drawSkeleton(int userId)
   people.ellipse(head.pos.x, head.pos.y, 100, 100);
   people.endDraw();
 
-  attractor.updateLocation(new PVector(rightHand.pos.x, rightHand.pos.y));
+  attractorR.updateLocation(new PVector(rightHand.pos.x, rightHand.pos.y));
+  attractorL.updateLocation(new PVector(leftHand.pos.x, leftHand.pos.y));
 }
 
 

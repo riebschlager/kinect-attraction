@@ -1,30 +1,25 @@
 import SimpleOpenNI.*;
 
 SimpleOpenNI context;
-boolean autoCalib = true;
-Mover[] movers = new Mover[3];
-Attractor attractor;
-int[] colors = new int[5];
-int[] distances;
-int currentColor = 0;
+ArrayList<Mover> movers = new ArrayList<Mover>();
+ArrayList<Attractor> attractors = new ArrayList<Attractors>();
+ArrayList<int> colors = new ArrayList<int>();
 PGraphics canvas, people;
-boolean isWhite = false;
 
 void setup() {
+  size(displayWidth, displayHeight);
+  background(255);
   context = new SimpleOpenNI(this);
-
+  
   if (context.enableDepth() == false)
   {
-    println("Can't open the depthMap, maybe the camera is not connected!"); 
     exit();
     return;
   }
 
   context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
   context.setMirror(true);
-
-  background(255);
-  size(1280, 800);
+  
   canvas = createGraphics(width, height);
   canvas.beginDraw();
   canvas.noStroke();
@@ -33,14 +28,14 @@ void setup() {
   people = createGraphics(width, height);
   people.beginDraw();
   people.endDraw();
+  
   movers[0] = new Mover(1.5, new PVector(random(width), random(height)), 0.00095);
   movers[1] = new Mover(1.0, new PVector(random(width), random(height)), 0.00075);
   movers[2] = new Mover(0.5, new PVector(random(width), random(height)), 0.00025);
   attractor = new Attractor();
-  colors[0] = color(70, 100);
-  colors[1] = color(255, 117, 0, 100);
-  colors[2] = color(12, 107, 161, 100);
-  distances = new int[movers.length];
+  colors.add(color(70, 100));
+  colors.add(color(255, 117, 0, 100));
+  colors.add(color(12, 107, 161, 100));
 }
 
 void draw() {
@@ -57,9 +52,6 @@ void draw() {
       drawSkeleton(userList[i]);
   }
   canvas.beginDraw();
-  if (frameCount % 250 == 0) {
-    isWhite = !isWhite;
-  }
   if (frameCount % 100 == 0) {
     if (context.getUsers().length==0) {
       attractor.updateLocation(new PVector(random(width), random(height)));
@@ -134,12 +126,7 @@ void drawSkeleton(int userId)
 void onNewUser(int userId)
 {
   println("onNewUser - userId: " + userId);
-  println("  start pose detection");
-
-  if (autoCalib)
-    context.requestCalibrationSkeleton(userId, true);
-  else    
-    context.startPoseDetection("Psi", userId);
+  context.requestCalibrationSkeleton(userId, true);
 }
 
 void onLostUser(int userId)
@@ -165,31 +152,7 @@ void onStartCalibration(int userId)
 void onEndCalibration(int userId, boolean successfull)
 {
   println("onEndCalibration - userId: " + userId + ", successfull: " + successfull);
-
-  if (successfull) 
-  { 
-    println("  User calibrated !!!");
-    context.startTrackingSkeleton(userId);
-  } 
-  else 
-  { 
-    println("  Failed to calibrate user !!!");
-    println("  Start pose detection");
-    context.startPoseDetection("Psi", userId);
-  }
-}
-
-void onStartPose(String pose, int userId)
-{
-  println("onStartPose - userId: " + userId + ", pose: " + pose);
-  println(" stop pose detection");
-
-  context.stopPoseDetection(userId); 
-  context.requestCalibrationSkeleton(userId, true);
-}
-
-void onEndPose(String pose, int userId)
-{
-  println("onEndPose - userId: " + userId + ", pose: " + pose);
+  if (successfull) context.startTrackingSkeleton(userId);
+  else context.requestCalibrationSkeleton(userId, true);
 }
 

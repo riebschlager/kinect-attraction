@@ -3,14 +3,23 @@ import SimpleOpenNI.*;
 SimpleOpenNI context;
 ArrayList<Mover> moversL = new ArrayList<Mover>();
 ArrayList<Mover> moversR = new ArrayList<Mover>();
-//ArrayList<Attractor> attractors = new ArrayList<Attractor>();
 Attractor attractorL, attractorR;
 ArrayList<Integer> colors = new ArrayList<Integer>();
 PGraphics canvas, people;
+PImage src;
+ArrayList<PImage> srcs = new ArrayList<PImage>();
+int currentSrc = 0;
 
 void setup() {
   size(displayWidth, displayHeight);
   background(255);
+  for(int i=0; i<4; i++){
+    PImage s = loadImage("img"+i+".jpg");
+    srcs.add(s);
+  }
+  
+  src = loadImage("img1.jpg");
+  
   context = new SimpleOpenNI(this);
   if (context.enableDepth() == false)
   {
@@ -50,7 +59,14 @@ void setup() {
 }
 
 void draw() {
+  src.loadPixels();
   background(255);
+  if(frameCount%200==0){
+    currentSrc++;
+    if(currentSrc > srcs.size()){
+      currentSrc = 0;
+    }
+  }
   context.update();
   people.beginDraw();
   people.background(0, 0);
@@ -65,28 +81,29 @@ void draw() {
   canvas.beginDraw();
   if (frameCount % 100 == 0) {
     if (context.getUsers().length==0) {
-      //attractor.updateLocation(new PVector(random(width), random(height)));
+      attractorL.updateLocation(new PVector(random(width), random(height)));
+      attractorR.updateLocation(new PVector(random(width), random(height)));
     }
   }
-  for (int j = 0; j < 10; j++) {
+  for (int j = 0; j < 6; j++) {
     for (int i = 0; i < moversL.size(); i++) {
       Mover m = moversL.get(i);
       m.applyForce(attractorL.attract(m));
       m.update();
-      canvas.fill(colors.get(i));
-      canvas.stroke(0, 10);
-      canvas.strokeWeight(10);
-      canvas.noStroke();
+      color c = src.get((int) m.location.x, (int) m.location.y);
+      canvas.fill(red(c), green(c), blue(c), 10);
+      canvas.stroke(red(c), green(c), blue(c), 200);
+      canvas.strokeWeight(0.5);
       canvas.ellipse(m.location.x, m.location.y, m.radius, m.radius);
     }
     for (int i = 0; i < moversR.size(); i++) {
       Mover m = moversR.get(i);
       m.applyForce(attractorR.attract(m));
       m.update();
-      canvas.fill(colors.get(i+3));
-      canvas.stroke(0, 10);
-      canvas.strokeWeight(10);
-      canvas.noStroke();
+      color c = src.get((int) m.location.x, (int) m.location.y);
+      canvas.fill(red(c), green(c), blue(c), 10);
+      canvas.stroke(red(c), green(c), blue(c), 200);
+      canvas.strokeWeight(0.5);
       canvas.ellipse(m.location.x, m.location.y, m.radius, m.radius);
     }
   }

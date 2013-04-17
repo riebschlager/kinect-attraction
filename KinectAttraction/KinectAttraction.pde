@@ -7,19 +7,15 @@ Attractor attractorL, attractorR;
 ArrayList<Integer> colors = new ArrayList<Integer>();
 PGraphics canvas, people;
 PImage src;
-ArrayList<PImage> srcs = new ArrayList<PImage>();
-int currentSrc = 0;
+
 
 void setup() {
-  size(displayWidth, displayHeight);
-  background(255);
-  for(int i=0; i<4; i++){
-    PImage s = loadImage("img"+i+".jpg");
-    srcs.add(s);
-  }
-  
-  src = loadImage("img1.jpg");
-  
+  size(displayWidth, displayHeight, P2D);
+ noCursor();
+
+  src = loadImage("motm.png");
+  src.loadPixels();
+
   context = new SimpleOpenNI(this);
   if (context.enableDepth() == false)
   {
@@ -39,14 +35,19 @@ void setup() {
   people.beginDraw();
   people.endDraw();
 
+  for (int i = 0; i < 5; i++) {
+    moversL.add(new Mover(random(3), new PVector(random(width), random(height)), random(0.00001, 0.01)));
+    moversR.add(new Mover(random(3), new PVector(random(width), random(height)), random(0.00001, 0.01)));
+  }
+  /*
   moversL.add(new Mover(1.5, new PVector(random(width), random(height)), 0.00095));
-  moversL.add(new Mover(1.0, new PVector(random(width), random(height)), 0.00075));
-  moversL.add(new Mover(0.5, new PVector(random(width), random(height)), 0.00025));
-
-  moversR.add(new Mover(1.5, new PVector(random(width), random(height)), 0.00095));
-  moversR.add(new Mover(1.0, new PVector(random(width), random(height)), 0.00075));
-  moversR.add(new Mover(0.5, new PVector(random(width), random(height)), 0.00025));
-
+   moversL.add(new Mover(1.0, new PVector(random(width), random(height)), 0.00075));
+   moversL.add(new Mover(0.5, new PVector(random(width), random(height)), 0.00025));
+   
+   moversR.add(new Mover(1.5, new PVector(random(width), random(height)), 0.00095));
+   moversR.add(new Mover(1.0, new PVector(random(width), random(height)), 0.00075));
+   moversR.add(new Mover(0.5, new PVector(random(width), random(height)), 0.00025));
+   */
   attractorL = new Attractor();
   attractorR = new Attractor();
 
@@ -59,14 +60,7 @@ void setup() {
 }
 
 void draw() {
-  src.loadPixels();
-  background(255);
-  if(frameCount%200==0){
-    currentSrc++;
-    if(currentSrc > srcs.size()){
-      currentSrc = 0;
-    }
-  }
+   background(0xFF444444);
   context.update();
   people.beginDraw();
   people.background(0, 0);
@@ -79,21 +73,31 @@ void draw() {
       drawSkeleton(userList[i]);
   }
   canvas.beginDraw();
-  if (frameCount % 100 == 0) {
+  if (frameCount % 10 == 0) {
     if (context.getUsers().length==0) {
       attractorL.updateLocation(new PVector(random(width), random(height)));
       attractorR.updateLocation(new PVector(random(width), random(height)));
     }
   }
-  for (int j = 0; j < 6; j++) {
+  for (int j = 0; j < 5; j++) {
     for (int i = 0; i < moversL.size(); i++) {
       Mover m = moversL.get(i);
       m.applyForce(attractorL.attract(m));
       m.update();
       color c = src.get((int) m.location.x, (int) m.location.y);
-      canvas.fill(red(c), green(c), blue(c), 10);
-      canvas.stroke(red(c), green(c), blue(c), 200);
-      canvas.strokeWeight(0.5);
+      canvas.fill(red(c), green(c), blue(c), 100);
+      canvas.stroke(red(c), green(c), blue(c), 10);
+      canvas.strokeWeight(10.5);
+      //canvas.fill(red(c), green(c), blue(c), 10);
+      //canvas.stroke(red(c), green(c), blue(c), 200);
+      //canvas.strokeWeight(0.5);
+      if (context.getUsers().length>0) {
+        //canvas.fill(green(c),red(c),blue(c));
+        m.radius *= 5;
+      }
+      else {
+        canvas.noStroke();
+      }
       canvas.ellipse(m.location.x, m.location.y, m.radius, m.radius);
     }
     for (int i = 0; i < moversR.size(); i++) {
@@ -101,9 +105,19 @@ void draw() {
       m.applyForce(attractorR.attract(m));
       m.update();
       color c = src.get((int) m.location.x, (int) m.location.y);
-      canvas.fill(red(c), green(c), blue(c), 10);
-      canvas.stroke(red(c), green(c), blue(c), 200);
-      canvas.strokeWeight(0.5);
+      canvas.fill(red(c), green(c), blue(c), 100);
+      canvas.stroke(red(c), green(c), blue(c), 10);
+      canvas.strokeWeight(10.5);
+      //canvas.fill(red(c), green(c), blue(c), 10);
+      //canvas.stroke(red(c), green(c), blue(c), 200);
+      //canvas.strokeWeight(0.5);
+      if (context.getUsers().length>0) {
+        //canvas.fill(green(c),red(c),blue(c));
+        m.radius *= 5;
+      } 
+      else {
+        canvas.noStroke();
+      }
       canvas.ellipse(m.location.x, m.location.y, m.radius, m.radius);
     }
   }
@@ -111,11 +125,6 @@ void draw() {
   canvas.endDraw();
   image(canvas, 0, 0);
   image(people, 0, 0);
-}
-
-void nextColor() {
-  //currentColor++;
-  //currentColor = (currentColor >= colors.length) ? 0 : currentColor;
 }
 
 void drawSkeleton(int userId)
@@ -137,8 +146,9 @@ void drawSkeleton(int userId)
   ScaledJoint rightFoot = new ScaledJoint(context, userId, SimpleOpenNI.SKEL_RIGHT_FOOT);
   ScaledJoint torso = new ScaledJoint(context, userId, SimpleOpenNI.SKEL_TORSO);
 
-  people.stroke(0);
-  people.strokeWeight(10);
+  people.stroke(255);
+  people.fill(255);
+  people.strokeWeight(5);
   people.line(head.pos.x, head.pos.y, neck.pos.x, neck.pos.y);
   people.line(neck.pos.x, neck.pos.y, leftShoulder.pos.x, leftShoulder.pos.y);
   people.line(leftShoulder.pos.x, leftShoulder.pos.y, leftElbow.pos.x, leftElbow.pos.y);
@@ -146,7 +156,14 @@ void drawSkeleton(int userId)
   people.line(neck.pos.x, neck.pos.y, rightShoulder.pos.x, rightShoulder.pos.y);
   people.line(rightShoulder.pos.x, rightShoulder.pos.y, rightElbow.pos.x, rightElbow.pos.y);
   people.line(rightElbow.pos.x, rightElbow.pos.y, rightHand.pos.x, rightHand.pos.y);
-  people.ellipse(head.pos.x, head.pos.y, 100, 100);
+  people.ellipse(head.pos.x, head.pos.y, 80, 80);
+  color c = src.get((int) rightHand.pos.x,(int) rightHand.pos.y);
+  people.strokeWeight(1);
+  people.fill(c);
+  people.ellipse(rightHand.pos.x,rightHand.pos.y,30,30);
+  color d = src.get((int) leftHand.pos.x,(int) leftHand.pos.y);
+  people.fill(d);
+  people.ellipse(leftHand.pos.x,leftHand.pos.y,30,30);
   people.endDraw();
 
   attractorR.updateLocation(new PVector(rightHand.pos.x, rightHand.pos.y));

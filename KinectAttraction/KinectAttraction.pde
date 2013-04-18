@@ -56,7 +56,7 @@ void draw() {
   }
   canvas.beginDraw();
 
-  if (frameCount % 10 == 0 && context.getUsers().length == 0) {
+  if (frameCount % 30 == 0 && context.getUsers().length == 0) {
     attractorL.updateLocation(new PVector(random(width), random(height)));
     attractorR.updateLocation(new PVector(random(width), random(height)));
   }
@@ -88,8 +88,8 @@ void updateAndDrawPoint(Mover m, Attractor a) {
   } 
   else {
     canvas.fill(red(c), green(c), blue(c), 100);
-    canvas.stroke(255, 25);
-    canvas.strokeWeight(0.5);
+    canvas.stroke(red(c), green(c), blue(c), 25);
+    canvas.strokeWeight(20.5);
   }
   canvas.ellipse(m.location.x, m.location.y, m.radius, m.radius);
 }

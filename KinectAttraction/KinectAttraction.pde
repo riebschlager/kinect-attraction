@@ -42,63 +42,55 @@ void setup() {
 }
 
 void draw() {
-  image(src, 0, 0);
+  
   context.update();
 
   people.beginDraw();
-  people.background(0, 0);
+  people.clear();
   people.endDraw();
 
   int[] userList = context.getUsers();
-  for (int i=0;i<userList.length;i++)
+  for (int i=0; i < userList.length; i++)
   {
     if (context.isTrackingSkeleton(userList[i])) drawSkeleton(userList[i]);
   }
   canvas.beginDraw();
-  if (frameCount % 10 == 0 && context.getUsers().length==0) {
+
+  if (frameCount % 10 == 0 && context.getUsers().length == 0) {
     attractorL.updateLocation(new PVector(random(width), random(height)));
     attractorR.updateLocation(new PVector(random(width), random(height)));
   }
+
   for (int j = 0; j < 5; j++) {
     for (int i = 0; i < moversL.size(); i++) {
-      Mover m = moversL.get(i);
-      m.applyForce(attractorL.attract(m));
-      m.update();
-      color c = src.get((int) m.location.x, (int) m.location.y);
-      canvas.fill(red(c), green(c), blue(c), 50);
-      if (context.getUsers().length > 0) {
-        canvas.stroke(255, 25);
-        canvas.strokeWeight(5);
-        m.radius *= 3;
-      }
-      else {
-        canvas.stroke(255, 25);
-        canvas.strokeWeight(0.5);
-      }
-      canvas.ellipse(m.location.x, m.location.y, m.radius, m.radius);
+      updateAndDrawPoint(moversL.get(i),attractorL);
     }
     for (int i = 0; i < moversR.size(); i++) {
-      Mover m = moversR.get(i);
-      m.applyForce(attractorR.attract(m));
-      m.update();
-      color c = src.get((int) m.location.x, (int) m.location.y);
-      canvas.fill(red(c), green(c), blue(c), 50);
-      if (context.getUsers().length > 0) {
-        canvas.stroke(255, 25);
-        canvas.strokeWeight(5.5);
-        m.radius *= 3;
-      } 
-      else {
-        canvas.stroke(255, 25);
-        canvas.strokeWeight(0.5);
-      }
-      canvas.ellipse(m.location.x, m.location.y, m.radius, m.radius);
+        updateAndDrawPoint(moversR.get(i),attractorR);
     }
   }
 
   canvas.endDraw();
+  image(src, 0, 0);
   image(canvas, 0, 0);
   image(people, 0, 0);
+}
+
+void updateAndDrawPoint(Mover m, Attractor a) {
+    m.applyForce(a.attract(m));
+    m.update();
+    color c = src.get((int) m.location.x, (int) m.location.y);
+    if (context.getUsers().length > 0){
+        m.radius *= 3;
+        canvas.fill(red(c), green(c), blue(c) 80);
+        canvas.stroke(255, 25);
+        canvas.strokeWeight(5);
+    } else {
+        canvas.fill(red(c), green(c), blue(c) 200);
+        canvas.stroke(255, 25);
+        canvas.strokeWeight(0.5);
+    }
+    canvas.ellipse(m.location.x, m.location.y, m.radius, m.radius);
 }
 
 void drawSkeleton(int userId)

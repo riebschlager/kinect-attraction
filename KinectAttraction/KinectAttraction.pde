@@ -32,9 +32,9 @@ void setup() {
   people.beginDraw();
   people.endDraw();
 
-  for (int i = 0; i < 10; i++) {
-    moversL.add(new Mover(random(2), new PVector(random(width), random(height)), random(0.00001, 0.01)));
-    moversR.add(new Mover(random(2), new PVector(random(width), random(height)), random(0.00001, 0.01)));
+  for (int i = 0; i < 5; i++) {
+    moversL.add(new Mover(random(2), new PVector(random(width), random(height)), random(0.0001, 0.01)));
+    moversR.add(new Mover(random(2), new PVector(random(width), random(height)), random(0.0001, 0.01)));
   }
 
   attractorL = new Attractor();
@@ -42,7 +42,7 @@ void setup() {
 }
 
 void draw() {
-  
+
   context.update();
 
   people.beginDraw();
@@ -63,10 +63,10 @@ void draw() {
 
   for (int j = 0; j < 5; j++) {
     for (int i = 0; i < moversL.size(); i++) {
-      updateAndDrawPoint(moversL.get(i),attractorL);
+      updateAndDrawPoint(moversL.get(i), attractorL);
     }
     for (int i = 0; i < moversR.size(); i++) {
-        updateAndDrawPoint(moversR.get(i),attractorR);
+      updateAndDrawPoint(moversR.get(i), attractorR);
     }
   }
 
@@ -77,20 +77,21 @@ void draw() {
 }
 
 void updateAndDrawPoint(Mover m, Attractor a) {
-    m.applyForce(a.attract(m));
-    m.update();
-    color c = src.get((int) m.location.x, (int) m.location.y);
-    if (context.getUsers().length > 0){
-        m.radius *= 3;
-        canvas.fill(red(c), green(c), blue(c) 80);
-        canvas.stroke(255, 25);
-        canvas.strokeWeight(5);
-    } else {
-        canvas.fill(red(c), green(c), blue(c) 200);
-        canvas.stroke(255, 25);
-        canvas.strokeWeight(0.5);
-    }
-    canvas.ellipse(m.location.x, m.location.y, m.radius, m.radius);
+  m.applyForce(a.attract(m));
+  m.update();
+  color c = src.get((int) m.location.x, (int) m.location.y);
+  if (context.getUsers().length > 0) {
+    m.radius *= 3;
+    canvas.fill(red(c), green(c), blue(c), 225);
+    canvas.stroke(255, 25);
+    canvas.strokeWeight(5);
+  } 
+  else {
+    canvas.fill(red(c), green(c), blue(c), 100);
+    canvas.stroke(255, 25);
+    canvas.strokeWeight(0.5);
+  }
+  canvas.ellipse(m.location.x, m.location.y, m.radius, m.radius);
 }
 
 void drawSkeleton(int userId)

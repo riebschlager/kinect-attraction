@@ -4,14 +4,12 @@ SimpleOpenNI context;
 ArrayList<Mover> moversL = new ArrayList<Mover>();
 ArrayList<Mover> moversR = new ArrayList<Mover>();
 Attractor attractorL, attractorR;
-ArrayList<Integer> colors = new ArrayList<Integer>();
 PGraphics canvas, people;
 PImage src;
 
-
 void setup() {
   size(displayWidth, displayHeight, P2D);
- noCursor();
+  noCursor();
 
   src = loadImage("motm.png");
   src.loadPixels();
@@ -28,40 +26,25 @@ void setup() {
 
   canvas = createGraphics(width, height);
   canvas.beginDraw();
-  canvas.noStroke();
   canvas.endDraw();
 
   people = createGraphics(width, height);
   people.beginDraw();
   people.endDraw();
 
-  for (int i = 0; i < 5; i++) {
-    moversL.add(new Mover(random(3), new PVector(random(width), random(height)), random(0.00001, 0.01)));
-    moversR.add(new Mover(random(3), new PVector(random(width), random(height)), random(0.00001, 0.01)));
+  for (int i = 0; i < 10; i++) {
+    moversL.add(new Mover(random(2), new PVector(random(width), random(height)), random(0.00001, 0.01)));
+    moversR.add(new Mover(random(2), new PVector(random(width), random(height)), random(0.00001, 0.01)));
   }
-  /*
-  moversL.add(new Mover(1.5, new PVector(random(width), random(height)), 0.00095));
-   moversL.add(new Mover(1.0, new PVector(random(width), random(height)), 0.00075));
-   moversL.add(new Mover(0.5, new PVector(random(width), random(height)), 0.00025));
-   
-   moversR.add(new Mover(1.5, new PVector(random(width), random(height)), 0.00095));
-   moversR.add(new Mover(1.0, new PVector(random(width), random(height)), 0.00075));
-   moversR.add(new Mover(0.5, new PVector(random(width), random(height)), 0.00025));
-   */
+
   attractorL = new Attractor();
   attractorR = new Attractor();
-
-  colors.add(color(0x224C2B2F));
-  colors.add(color(0x22E57152));
-  colors.add(color(0x22E8D367));
-  colors.add(color(0x22FFEFC3));
-  colors.add(color(0x22C0CCAB));
-  colors.add(color(0x22666666));
 }
 
 void draw() {
-   background(0xFF444444);
+  image(src, 0, 0);
   context.update();
+
   people.beginDraw();
   people.background(0, 0);
   people.endDraw();
@@ -69,15 +52,12 @@ void draw() {
   int[] userList = context.getUsers();
   for (int i=0;i<userList.length;i++)
   {
-    if (context.isTrackingSkeleton(userList[i]))
-      drawSkeleton(userList[i]);
+    if (context.isTrackingSkeleton(userList[i])) drawSkeleton(userList[i]);
   }
   canvas.beginDraw();
-  if (frameCount % 10 == 0) {
-    if (context.getUsers().length==0) {
-      attractorL.updateLocation(new PVector(random(width), random(height)));
-      attractorR.updateLocation(new PVector(random(width), random(height)));
-    }
+  if (frameCount % 10 == 0 && context.getUsers().length==0) {
+    attractorL.updateLocation(new PVector(random(width), random(height)));
+    attractorR.updateLocation(new PVector(random(width), random(height)));
   }
   for (int j = 0; j < 5; j++) {
     for (int i = 0; i < moversL.size(); i++) {
@@ -85,18 +65,15 @@ void draw() {
       m.applyForce(attractorL.attract(m));
       m.update();
       color c = src.get((int) m.location.x, (int) m.location.y);
-      canvas.fill(red(c), green(c), blue(c), 100);
-      canvas.stroke(red(c), green(c), blue(c), 10);
-      canvas.strokeWeight(10.5);
-      //canvas.fill(red(c), green(c), blue(c), 10);
-      //canvas.stroke(red(c), green(c), blue(c), 200);
-      //canvas.strokeWeight(0.5);
-      if (context.getUsers().length>0) {
-        //canvas.fill(green(c),red(c),blue(c));
-        m.radius *= 5;
+      canvas.fill(red(c), green(c), blue(c), 50);
+      if (context.getUsers().length > 0) {
+        canvas.stroke(255, 25);
+        canvas.strokeWeight(5);
+        m.radius *= 3;
       }
       else {
-        canvas.noStroke();
+        canvas.stroke(255, 25);
+        canvas.strokeWeight(0.5);
       }
       canvas.ellipse(m.location.x, m.location.y, m.radius, m.radius);
     }
@@ -105,18 +82,15 @@ void draw() {
       m.applyForce(attractorR.attract(m));
       m.update();
       color c = src.get((int) m.location.x, (int) m.location.y);
-      canvas.fill(red(c), green(c), blue(c), 100);
-      canvas.stroke(red(c), green(c), blue(c), 10);
-      canvas.strokeWeight(10.5);
-      //canvas.fill(red(c), green(c), blue(c), 10);
-      //canvas.stroke(red(c), green(c), blue(c), 200);
-      //canvas.strokeWeight(0.5);
-      if (context.getUsers().length>0) {
-        //canvas.fill(green(c),red(c),blue(c));
-        m.radius *= 5;
+      canvas.fill(red(c), green(c), blue(c), 50);
+      if (context.getUsers().length > 0) {
+        canvas.stroke(255, 25);
+        canvas.strokeWeight(5.5);
+        m.radius *= 3;
       } 
       else {
-        canvas.noStroke();
+        canvas.stroke(255, 25);
+        canvas.strokeWeight(0.5);
       }
       canvas.ellipse(m.location.x, m.location.y, m.radius, m.radius);
     }
@@ -157,13 +131,13 @@ void drawSkeleton(int userId)
   people.line(rightShoulder.pos.x, rightShoulder.pos.y, rightElbow.pos.x, rightElbow.pos.y);
   people.line(rightElbow.pos.x, rightElbow.pos.y, rightHand.pos.x, rightHand.pos.y);
   people.ellipse(head.pos.x, head.pos.y, 80, 80);
-  color c = src.get((int) rightHand.pos.x,(int) rightHand.pos.y);
+  color c = src.get((int) rightHand.pos.x, (int) rightHand.pos.y);
   people.strokeWeight(1);
   people.fill(c);
-  people.ellipse(rightHand.pos.x,rightHand.pos.y,30,30);
-  color d = src.get((int) leftHand.pos.x,(int) leftHand.pos.y);
+  people.ellipse(rightHand.pos.x, rightHand.pos.y, 30, 30);
+  color d = src.get((int) leftHand.pos.x, (int) leftHand.pos.y);
   people.fill(d);
-  people.ellipse(leftHand.pos.x,leftHand.pos.y,30,30);
+  people.ellipse(leftHand.pos.x, leftHand.pos.y, 30, 30);
   people.endDraw();
 
   attractorR.updateLocation(new PVector(rightHand.pos.x, rightHand.pos.y));

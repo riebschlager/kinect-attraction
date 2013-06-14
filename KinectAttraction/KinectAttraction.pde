@@ -19,6 +19,7 @@ void setup() {
 
   for (int i=0;i<srcPaths.length;i++) {
     src[i] = loadImage(srcPaths[i]);
+    src[i].resize(width,height);
     src[i].loadPixels();
   }
 

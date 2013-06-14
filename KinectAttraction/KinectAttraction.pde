@@ -83,11 +83,11 @@ void draw() {
   }
 
   canvas.endDraw();
-  background(255);
+  background(0);
   image(canvas, 0, 0);
   image(people, 0, 0);
   canvas.beginDraw();
-  canvas.fill(255, 10);
+  canvas.fill(0, 5);
   canvas.rect(0, 0, width, height);
   canvas.endDraw();
 }
@@ -101,9 +101,10 @@ void updateAndDrawPoint(Mover m, Attractor a) {
   shape.disableStyle();
   shape.scale(random(0.5));
   shape.rotate(random(PI));
-  canvas.stroke(255);
+  //canvas.stroke(255);
   canvas.fill(red(c), green(c), blue(c), 255);
-  canvas.strokeWeight(0.5 * (1 / m.radius));
+  canvas.noStroke();
+  //canvas.strokeWeight(0.5 * (1 / m.radius));
   canvas.shape(shape, m.location.x, m.location.y);
 }
 

@@ -3,16 +3,24 @@ import SimpleOpenNI.*;
 SimpleOpenNI context;
 ArrayList<Mover> moversL = new ArrayList<Mover>();
 ArrayList<Mover> moversR = new ArrayList<Mover>();
+ArrayList<PShape> shapes = new ArrayList<PShape>();
 Attractor attractorL, attractorR;
 PGraphics canvas, people;
-PImage src;
+String[] srcPaths = {
+  "bitmap/img0.jpg", "bitmap/img1.jpg", "bitmap/img2.jpg", "bitmap/img3.jpg", "bitmap/motm.png"
+};
+PImage[] src = new PImage[srcPaths.length];
+int currentSrc = 0;
 
 void setup() {
   size(displayWidth, displayHeight, P2D);
   noCursor();
+  loadVectors("ornaments", true);
 
-  src = loadImage("motm.png");
-  src.loadPixels();
+  for (int i=0;i<srcPaths.length;i++) {
+    src[i] = loadImage(srcPaths[i]);
+    src[i].loadPixels();
+  }
 
   context = new SimpleOpenNI(this);
   if (context.enableDepth() == false)
@@ -32,7 +40,7 @@ void setup() {
   people.beginDraw();
   people.endDraw();
 
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 1; i++) {
     moversL.add(new Mover(random(2), new PVector(random(width), random(height)), random(0.0001, 0.01)));
     moversR.add(new Mover(random(2), new PVector(random(width), random(height)), random(0.0001, 0.01)));
   }
@@ -41,7 +49,11 @@ void setup() {
   attractorR = new Attractor();
 }
 
+
+
 void draw() {
+
+  if (frameCount % 100 == 0) currentSrc = (int) random(srcPaths.length);
 
   context.update();
 
@@ -60,8 +72,7 @@ void draw() {
     attractorL.updateLocation(new PVector(random(width), random(height)));
     attractorR.updateLocation(new PVector(random(width), random(height)));
   }
-
-  for (int j = 0; j < 5; j++) {
+  for (int j=0; j<5; j++) {
     for (int i = 0; i < moversL.size(); i++) {
       updateAndDrawPoint(moversL.get(i), attractorL);
     }
@@ -69,9 +80,9 @@ void draw() {
       updateAndDrawPoint(moversR.get(i), attractorR);
     }
   }
-
+  
   canvas.endDraw();
-  image(src, 0, 0);
+  background(255);
   image(canvas, 0, 0);
   image(people, 0, 0);
 }
@@ -79,19 +90,38 @@ void draw() {
 void updateAndDrawPoint(Mover m, Attractor a) {
   m.applyForce(a.attract(m));
   m.update();
-  color c = src.get((int) m.location.x, (int) m.location.y);
-  if (context.getUsers().length > 0) {
-    m.radius *= 3;
-    canvas.fill(red(c), green(c), blue(c), 225);
-    canvas.stroke(255, 25);
-    canvas.strokeWeight(5);
-  } 
-  else {
-    canvas.fill(red(c), green(c), blue(c), 100);
-    canvas.stroke(red(c), green(c), blue(c), 25);
-    canvas.strokeWeight(20.5);
+  color c = src[currentSrc].get((int) m.location.x, (int) m.location.y);
+  PShape shape = shapes.get((int) random(shapes.size()));
+  shape.resetMatrix();
+  shape.disableStyle();
+  shape.scale(random(0.5));
+  shape.rotate(random(PI));
+  canvas.stroke(255);
+  canvas.fill(red(c), green(c), blue(c), 255);
+  canvas.strokeWeight(0.5 * (1 / m.radius));
+  canvas.shape(shape, m.location.x, m.location.y);
+}
+
+//----------------------------------------------------------------------
+// Load vectors from given files and folders
+//----------------------------------------------------------------------
+
+void loadVectors(String folderName, boolean loadChildrenAsShapes) {
+  File folder = new File(this.sketchPath+"/data/vector/" + folderName);
+  File[] listOfFiles = folder.listFiles();
+  for (File file : listOfFiles) {
+    if (file.isFile()) {
+      PShape shape = loadShape(file.getAbsolutePath());
+      if (loadChildrenAsShapes) {
+        for (PShape layer : shape.getChildren()) {
+          if (layer!=null) shapes.add(layer);
+        }
+      } 
+      else {
+        shapes.add(shape);
+      }
+    }
   }
-  canvas.ellipse(m.location.x, m.location.y, m.radius, m.radius);
 }
 
 void drawSkeleton(int userId)
@@ -124,11 +154,11 @@ void drawSkeleton(int userId)
   people.line(rightShoulder.pos.x, rightShoulder.pos.y, rightElbow.pos.x, rightElbow.pos.y);
   people.line(rightElbow.pos.x, rightElbow.pos.y, rightHand.pos.x, rightHand.pos.y);
   people.ellipse(head.pos.x, head.pos.y, 80, 80);
-  color c = src.get((int) rightHand.pos.x, (int) rightHand.pos.y);
+  color c = src[currentSrc].get((int) rightHand.pos.x, (int) rightHand.pos.y);
   people.strokeWeight(1);
   people.fill(c);
   people.ellipse(rightHand.pos.x, rightHand.pos.y, 30, 30);
-  color d = src.get((int) leftHand.pos.x, (int) leftHand.pos.y);
+  color d = src[currentSrc].get((int) leftHand.pos.x, (int) leftHand.pos.y);
   people.fill(d);
   people.ellipse(leftHand.pos.x, leftHand.pos.y, 30, 30);
   people.endDraw();

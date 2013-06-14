@@ -33,7 +33,7 @@ class Mover {
     acceleration.mult(0);
     applyDrag();
     distance = dist(mouseX, mouseY, location.x, location.y);
-    radius = mass * map(distance, 0, 300, 0, 5);
+    radius = mass * map(distance, 0, 300, 0, 1);
     if (distance < 10) velocity.mult(0);
   }
 

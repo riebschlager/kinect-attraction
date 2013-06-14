@@ -7,7 +7,7 @@ ArrayList<PShape> shapes = new ArrayList<PShape>();
 Attractor attractorL, attractorR;
 PGraphics canvas, people;
 String[] srcPaths = {
-  "bitmap/img0.jpg", "bitmap/img1.jpg", "bitmap/img2.jpg", "bitmap/img3.jpg", "bitmap/motm.png"
+ "bitmap/img1.jpg", "bitmap/img2.jpg", "bitmap/img3.jpg", "bitmap/img4.png"
 };
 PImage[] src = new PImage[srcPaths.length];
 int currentSrc = 0;

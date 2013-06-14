@@ -19,7 +19,7 @@ void setup() {
 
   for (int i=0;i<srcPaths.length;i++) {
     src[i] = loadImage(srcPaths[i]);
-    src[i].resize(width,height);
+    src[i].resize(width, height);
     src[i].loadPixels();
   }
 
@@ -81,11 +81,15 @@ void draw() {
       updateAndDrawPoint(moversR.get(i), attractorR);
     }
   }
-  
+
   canvas.endDraw();
   background(255);
   image(canvas, 0, 0);
   image(people, 0, 0);
+  canvas.beginDraw();
+  canvas.fill(255, 10);
+  canvas.rect(0, 0, width, height);
+  canvas.endDraw();
 }
 
 void updateAndDrawPoint(Mover m, Attractor a) {
